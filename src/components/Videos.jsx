@@ -10,8 +10,8 @@ const Videos = () => {
 
   // List of video files relative to the public or src folder
   const videos = [
-    '/src/videos/How to Defend against Neck Lock #selfdefence #rajatayyab #selfedefense #kravmaga #fightback [TubeRipper.com].mp4',
-    '/src/videos/Self defence technique for all learn how to defend yourself #youtube #brave #selfdefense [TubeRipper.com].mp4'
+    '/src/videos/vid1.mp4',
+    '/src/videos/vid2.mp4'
   ];
 
   return (
@@ -33,10 +33,15 @@ const Videos = () => {
             </div>
         </div>
 
-        <div className='p-4 grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className='flex items-center p-4 pl-4 ml-4'>
           {videos.length > 0 ? (
             videos.map((video, index) => (
-              <video key={index} controls className="w-full rounded-md shadow-md">
+              <video 
+                key={index} 
+                controls 
+                className="rounded-xl shadow-md p-1" 
+                style={{ width: '300px', height: '500px', objectFit: 'cover' }}
+              >
                 <source src={video} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>

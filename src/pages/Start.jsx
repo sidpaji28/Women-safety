@@ -21,10 +21,10 @@ const Start = () => {
         <p className="text-lg font-semibold">Counselor</p>
       </div>
 
-      <div className="border border-black flex flex-col justify-center items-center p-3 rounded-lg bg-white bg-opacity-50">
+      <a href="https://womensafetywing.telangana.gov.in/sahas/support-forum/" target="_blank" rel="noopener noreferrer" className="border border-black flex flex-col justify-center items-center p-3 rounded-lg bg-white bg-opacity-50">
         <img src="https://th.bing.com/th/id/OIP.ChOpaUecc2bNwZtfFFIKBQHaGZ?w=189&h=180&c=7&r=0&o=5&pid=1.7" alt="" className="h-15 w-20 border border-black rounded-full"/>
         <p className="text-lg font-semibold">Law</p>
-      </div>
+      </a>
 
       <div className="border border-black flex flex-col justify-center items-center p-3 rounded-lg bg-white bg-opacity-50">
         <img src="https://th.bing.com/th/id/OIP.MyccVGgCzrfIJqPOiPZvPAHaHa?w=213&h=213&c=7&r=0&o=5&pid=1.7" alt="" className="h-15 w-20 border border-black rounded-full"/>
