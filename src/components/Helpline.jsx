@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import EmergencyService from "./EmergencyService"; // Import the service
+import { io } from "socket.io-client";
 
 // Keep your original code mostly intact
 const helplines = [
@@ -16,12 +17,11 @@ function HelplinePage() {
 
   // Handle emergency call
   const handleEmergencyCall = async (event, line) => {
-    // Prevent default to handle the call ourselves
-    event.preventDefault();
+    if (event) event.preventDefault();
 
     try {
       setIsLoading(true);
-      setCallStatus("Calling ${line.name}...");
+      setCallStatus(`Calling ${line.name}...`);
 
       // Use the EmergencyService to make the call
       const result = await EmergencyService.makeEmergencyCall(
@@ -40,12 +40,32 @@ function HelplinePage() {
     } catch (error) {
       console.error("Call handling error:", error);
       setCallStatus(
-        "Error: Could not connect to ${line.name}. Please try again."
+        `Error: Could not connect to ${line.name}. Please try again.`
       );
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Connect to the ESP32 backend WebSocket server
+    const socket = io("http://localhost:6000");
+
+    // Listen for police alert event
+    socket.on("policeAlert", () => {
+      // Find the police helpline
+      const policeLine = helplines.find((line) => line.name === "Police");
+      if (policeLine) {
+        // Trigger the police call handler programmatically
+        handleEmergencyCall(null, policeLine);
+      }
+    });
+
+    // Cleanup on unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -53,7 +73,7 @@ function HelplinePage() {
       {helplines.map((line, index) => (
         <a
           key={index}
-          href={'tel:${line.number}'    }
+          href={`tel:${line.number}`}
           // Just modify the onClick to use our handler
           onClick={(e) => handleEmergencyCall(e, line)}
           style={{
