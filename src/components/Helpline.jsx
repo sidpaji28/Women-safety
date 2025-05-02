@@ -60,12 +60,9 @@ function HelplinePage() {
       } else {
         setCallStatus(result.message + ". Please try again.");
       }
-      
+
       // Clear status after 5 seconds
-      setTimeout(() => {
-        setCallStatus("");
-        setActiveHelpline(null);
-      }, 5000);
+      setTimeout(() => setCallStatus(""), 5000);
     } catch (error) {
       console.error("Call handling error:", error);
       setCallStatus(
