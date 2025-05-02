@@ -34,7 +34,7 @@ const OtpVerification = ({ setOtpVerification }) => {
   const verifyOtp = () => {
     const enteredOtp = otp.join('');
     if (enteredOtp === '2829') {
-      navigate('/userhome');
+      navigate('/user-home');
     } else {
       alert('Invalid OTP!');
     }
