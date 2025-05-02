@@ -1,82 +1,121 @@
-import React, { useRef, useState } from 'react'
-import 'remixicon/fonts/remixicon.css'
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import SosTrigger from '../components/SosTrigger';
-import VoiceRecord from '../components/VoiceRecord';
-import Helpline from '../components/Helpline';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
-const UserHome = () => {
-  
-
+const VoiceRecord = () => {
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioURL, setAudioURL] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
   const navigate = useNavigate();
 
-  const [activeTab , setActiveTab] = useState('Record');
-  const [isPulsing , setIsPulsing] = useState(false);
+  const handleStartRecording = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Your browser does not support audio recording.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      audioChunksRef.current = [];
 
-  const handleClick = () => {
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
 
-    setIsPulsing(true);
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
+        const url = URL.createObjectURL(audioBlob);
+        setAudioURL(url);
+      };
 
-    setTimeout(() => setIsPulsing(false) , 5000)
-  }
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (err) {
+      alert("Could not start recording: " + err.message);
+    }
+  };
 
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
 
   return (
-    <div>
-        <div className='flex flex-col justify-between p-4 text-lg font-semibold bg-orange-400 text-white pb-2'>
-            <div className='flex justify-between mb-5'>
-                <i className="ri-menu-line"></i>
-                <p>Voice Record</p>
-                <i className="ri-notification-3-line"></i>
-            </div>
-            <div className='flex justify-around items-center'>
-            {['Record' , 'History'].map((tab) => (
-                <p key={tab} className={`cursor-pointer pb-2 ${activeTab === tab ? 'border-b-4 border-white' : ''}`} onClick={() => setActiveTab(tab)}>
-                    {tab}
-                </p>
-              ))}
-            </div>
+    <div className="h-screen flex flex-col justify-center items-center p-4">
+      <h2 className="text-2xl font-semibold mb-6">Voice Recorder</h2>
+      <div>
+        {!isRecording && (
+          <button
+            onClick={handleStartRecording}
+            className="bg-orange-400 text-white px-6 py-3 rounded-lg text-lg font-semibold"
+          >
+            Start Recording
+          </button>
+        )}
+        {isRecording && (
+          <button
+            onClick={handleStopRecording}
+            className="bg-red-600 text-white px-6 py-3 rounded-lg text-lg font-semibold"
+          >
+            Stop Recording
+          </button>
+        )}
+      </div>
+      {audioURL && (
+        <div className="mt-6">
+          <audio controls src={audioURL} />
         </div>
-
-
-        <div className='flex mt-[30%] items-center justify-center'>
-            <div 
-                className={`w-72 h-72 border border-orange-400 rounded-full flex items-center justify-center cursor-pointer ${isPulsing ? 'animate-pulse' : ''}`} 
-                onClick={handleClick}
-            >
-                <div className='w-60 h-60 border border-orange-600 rounded-full flex items-center justify-center mt-2'>
-                    <div className='w-48 h-48 bg-orange-400 rounded-full flex items-center justify-center mt-1'>
-                        <div className='w-32 h-32 bg-orange-600 rounded-full flex items-center justify-center mt-1'>
-                            <p className='text-white text-4xl font-bold'><i className="ri-mic-fill"></i></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      )}
+      <div className="fixed bottom-0 left-0 w-full flex justify-center gap-10 bg-orange-400 p-3 text-white text-center mt-10">
+        <div
+          onClick={() => {
+            navigate("/user-home");
+          }}
+          className="focus:outline-none focus:ring-2 focus:ring-white rounded-md pr-1 pl-1"
+          tabIndex="0"
+        >
+          <i className="ri-home-9-line"></i>
+          <p>Home</p>
         </div>
-
-        <div className='fixed bottom-0 left-0 w-full flex justify-center gap-10 bg-orange-400 p-3 text-white text-center'>
-            <div onClick={() => {navigate('/user-home')}} className='focus:outline-none focus:ring-2 focus:ring-white rounded-md pr-1 pl-1' tabIndex="0">
-                <i className="ri-home-9-line"></i>
-                <p>Home</p>
-            </div>
-            <div onClick={() => {navigate('/voice-record')}} className='focus:outline-none focus:ring-2 focus:ring-white rounded-md pr-1 pl-1' tabIndex="0">
-                <i className="ri-mic-line"></i>
-                <p>Record</p>
-            </div>
-            <div onClick={() => {navigate('/helpline')}} className='focus:outline-none focus:ring-2 focus:ring-white rounded-md pr-1 pl-1' tabIndex="0">
-                <i className="ri-questionnaire-line"></i>
-                <p>Helpline</p>
-            </div>
-            <div onClick={() => {navigate('/videos')}} className='focus:outline-none focus:ring-2 focus:ring-white rounded-md pr-1 pl-1' tabIndex="0">
-                <i className="ri-file-video-line"></i>
-                <p>Videos</p>
-            </div>
+        <div
+          onClick={() => {
+            navigate("/voice-record");
+          }}
+          className="focus:outline-none focus:ring-2 focus:ring-white rounded-md pr-1 pl-1"
+          tabIndex="0"
+        >
+          <i className="ri-mic-line"></i>
+          <p>Record</p>
         </div>
-        
+        <div
+          onClick={() => {
+            navigate("/helpline");
+          }}
+          className="focus:outline-none focus:ring-2 focus:ring-white rounded-md pr-1 pl-1"
+          tabIndex="0"
+        >
+          <i className="ri-questionnaire-line"></i>
+          <p>Helpline</p>
+        </div>
+        <div
+          onClick={() => {
+            navigate("/videos");
+          }}
+          className="focus:outline-none focus:ring-2 focus:ring-white rounded-md pr-1 pl-1"
+          tabIndex="0"
+        >
+          <i className="ri-file-video-line"></i>
+          <p>Videos</p>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default UserHome
+export default VoiceRecord;
